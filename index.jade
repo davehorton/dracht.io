@@ -1,0 +1,39 @@
+!!! 5
+html
+  head
+    title drachtio - A node.js sip application framework
+    include includes/head
+    include includes/mixins
+  body
+    header
+      .logo
+        h1
+          a(href="./")
+      .tagline
+        span.description
+            | The 
+            a(href='http://ietf.org/rfc/rfc3261') sip 
+            | application middleware for
+            a(href='http://nodejs.org')  node 
+            | applications
+    section#menu
+      nav
+        +item('#') Home
+        +item('#') Guide
+        +item('#') API
+        +item('#') FAQ
+
+    #page-home.page(style:"display: block")
+      section
+        include includes/home
+
+     #page-guide.page(style:"display: none")
+        section
+
+     #page-api.page(style:"display: none")
+        section
+
+     #page-faq.page(style:"display: none")
+        section
+
+    include includes/footer
