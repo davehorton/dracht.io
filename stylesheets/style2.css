@@ -36,6 +36,7 @@ header .logo h1 a {
 }
 
 header .tagline {
+  text-align: right ;
   position: relative;
   top: 20px;
   width: 800px;
