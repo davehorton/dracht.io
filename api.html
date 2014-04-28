@@ -1,0 +1,416 @@
+<!DOCTYPE html><html><head><title>dracht.io - api reference</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;amp;subset=latin,latin-ext"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script><script src="/app.js"></script><script src="/retina.js"></script></head><body class="inner"><div class="bar"></div><section id="content"><header><section id="logo"><a href="/" class="drachtio">dracht.io</a><div class="tagline"><span class="description">The <a href="http://www.ietf.org/rfc/rfc3261.txt">SIP </a>application middleware for    <a href="http://nodejs.org"> node</a></span></div><div class="definition"><img src="../images/definition-only-500-pixels.png"></div></section><nav class="clearfix"><a href="/">Home</a><a href="/guide.html">Guide</a><a href="/api.html" class="active">API Reference</a></nav></header><ul id="menu"><li id="app-api"> <a href="#drachtio">Application</a><ul id="app-menu"><li><a href="#drachtio">drachtio()</a></li><li><a href="#app.connect">app.connect()</a></li><li><a href="#app.disable">app.disable()</a></li><li><a href="#app.disabled">app.disabled()</a></li><li><a href="#app.enable">app.enable()</a></li><li><a href="#app.enabled">app.enabled()</a></li><li><a href="#app.get">app.get()</a></li><li><a href="#app.set">app.set()</a></li><li><a href="#app-settings">settings</a></li><li><a href="#app.use">app.use()</a></li><li><a href="#app.VERB">app.VERB()</a></li></ul></li><li id="req-api"> <a href="#req.active">Request</a><ul id="req-menu"><li><a href="#req.active">req.active</a></li><li><a href="#req.body">req.body</a></li><li><a href="#req.cancel">req.cancel()</a></li><li><a href="#req.get">req.get()</a></li><li><a href="#req.getbody">req.getBody()</a></li><li><a href="#req.headers">req.headers</a></li><li><a href="#req.isnewinvite">req.isNewInvite()</a></li><li><a href="#req.method">req.method</a></li><li><a href="#req.prack">req.prack()</a></li><li><a href="#req.requesturi">req.request_uri</a></li><li><a href="#req.source">req.source</a></li><li><a href="#req.source_address">req.source_address</a></li><li><a href="#req.source_port">req.source_port</a></li></ul></li><li id="res-api"> <a href="#res.send">Response</a><ul id="res-menu"><li><a href="#res.ack">res.ack()</a></li><li><a href="#res.body">res.body</a></li><li><a href="#res.get">res.get()</a></li><li><a href="#res.getbody">res.getBody()</a></li><li><a href="#res.send">res.send()</a></li><li><a href="#res.set">res.set()</a></li><li><a href="#res.setbody">res.setBody()</a></li><li><a href="#res.status">res.status</a></li><li><a href="#res.statuscode">res.statusCode</a></li></ul></li><li id="sr-api"><a href="#siprequest">app.siprequest[VERB]</a><ul id="sr-menu"><li><a href="#siprequest">app.siprequest()</a></li><li><a href="#siprequest.cancel">request.cancel()</a></li><li><a href="#siprequest.pipe">request.pipe()</a></li></ul></li></ul><div id="right"><section><h3 id="drachtio">drachtio()</h3><p>Create a drachtio application.
+</p><pre class="js"><code>var drachtio = require('drachtio');
+var app = drachtio();
+
+app.connect({host:'localhost', port: 8022, secret:'cymru'}) ;
+
+//respond to OPTIONS ping
+app.options( function(req, res){
+  res.send(200);
+});</code></pre></section><h2>Application</h2><a name="application"></a><section><h3 id="app.connect">app.connect(opts, [callback])</h3><p>Connect to a drachtio-server.
+</p><p>A drachtio application is a client application that connects to and utilizes the services
+of a <a href='http://github.com/davehorton/drachtio-server'>drachtio-server</a> process.
+The drachtio-server process provides the SIP endpoint that manages all of the SIP
+signaling over the network.  The server may be running on the same machine or remotely.  
+</p><p>The client calls <code>app.connect()</code> to establish a TCP connection with the server, 
+over which JSON messages are exchanged.  The method takes an object parameter (<code>opts</code>) 
+and an optional callback function which is invoked when the connection is established.
+</p><p>The <code>opts</code> parameter is defined as follows:
+</p><pre class="js"><code>{
+    host:   string  // IP address or DNS name of host to connect to
+    port:   integer // port on which the server is listening for client connections
+    secret: string  //shared secret used by the server to authenticate clients
+    appName: string //optional; app-provided identifier used by the server to group identical client apps
+}
+</code></pre><p>The callback function has the signature <code>function( hostport )</code>, where <code>hostport</code>
+is the SIP signaling address and port that the server is listening on for incoming SIP messages.
+</p><pre class="js"><code>var app = require('drachtio')() ;
+
+app.connect({host:'10.1.10.100',port:8022,secret:'cymru'}, function( hostport ){
+    console.log('Connected successfully to a SIP server that is listening on %s', hostport) ;
+});
+</code></pre><p>Note that <code>app</code> is an <code>EventEmitter</code>, and an application can alternatively 
+listen for the <code>connect</code> event, as shown below
+</p><pre class="js"><code>var app = require('drachtio')() ;
+
+app.connect({host:'10.1.10.100',port:8022,secret:'cymru'}) ;
+
+app.on('connect', function(hostport){
+    console.log('Connected successfully to SIP server listening on %s', hostport) ;
+}) ;
+
+//reconnect if we lose the connection
+app.on('disconnect', function(){
+    app.connect({host:'10.1.10.100',port:8022,secret:'cymru'}) ;
+}) ;</code></pre></section><section><h3 id="app.disable">app.disable(name)</h3><p>Set setting <code>name</code> to <code>false</code>.
+</p><pre class="js"><code>app.disable('session timer');
+app.get('session timer');
+// => false</code></pre></section><section><h3 id="app.disabled">app.disabled(name)</h3><p>Check if setting <code>name</code> is disabled.
+</p><pre class="js"><code>app.disabled('session timer');
+// => true
+
+app.enable('session timer');
+app.disabled('session timer');
+// => false</code></pre></section><section><h3 id="app.enable">app.enable(name)</h3><p>Set setting <code>name</code> to <code>true</code>.
+</p><pre class="js"><code>app.enable('session timer');
+app.get('session timer');
+// => true</code></pre></section><section><h3 id="app.enabled">app.enabled(name)</h3><p>Check if setting <code>name</code> is enabled.
+</p><pre class="js"><code>app.enabled('session timer');
+// => false
+
+app.enable('session timer');
+app.enabled('session timer');
+// => true</code></pre></section><section><h3 id="app.get">app.get(name)</h3><p>Get setting <code>name</code> value.
+</p><pre class="js"><code>app.get('user agent');
+// => undefined
+
+app.set('user agent', 'Techniz 1.0');
+app.get('user agent');
+// => "Techniz 1.0"</code></pre></section><section><h3 id="app.set">app.set(name, value)</h3><p>Assigns setting <code>name</code> to <code>value</code>.
+</p><pre class="js"><code>app.set('user agent', 'Techniz 1.0');
+app.get('user agent');
+// => "Techniz 1.0"</code></pre></section><section><h3 id="app-settings">settings</h3><p>There are currently no application-level settings that would alter the behavior of drachtio.  
+This may change in a future release.
+</p></section><section><h3 id="app.use">app.use([method], function)</h3><p>Use the given middleware <code>function</code>, with optional method selector that is either 
+the name of a SIP method, or the string 'reponse'.  If not provided, the given middleware
+will be executed on all incoming messages.
+</p><pre class="js"><code>// simple logger for all incoming messages
+app.use(function(req, res, next){
+  if( req.source === 'network' ) {
+    console.log('received %s request from %s:%s', req.method, req.source_address, req.source_port);
+  }
+  else {
+    console.log('received status %d on response from %s:%s', res.statusCode, res.source_address,res.source_port) ;
+  }
+  next();
+});
+
+// followed by middleware that responds to register requests if no credentials have been supplied
+app.use('register', function( req, res, next ) {
+  if( !req.has('authorization') ) {
+    var www_auth_header = generateWWWAuthenticate( req ) ;  //user-provided function
+    res.send(400, {
+      headers: {
+        'www-authenticate': www_auth_header
+      }
+    }) ;
+    return ;
+  }
+  next() ;
+}
+
+//followed by register handler, which can assume at this point credentials have been supplied
+app.register( function( req, res ){
+  //TODO: check credentials and respond accordingly
+}) ;  
+</code></pre></section><section><h3 id="app.VERB">app.VERB([callback...], callback)</h3><p>The <code>app.VERB()</code> methods provide the routing functionality
+in drachtio, where <strong>VERB</strong> is one of the SIP verbs, such
+as <code>app.invite()</code>. </p><p>Unlike <a href="http://expressjs.com">express</a> (for those familiar with it), 
+there is no path string
+provided in the function signature.  This is because SIP requests, 
+unlike HTTP requests, rarely or never include a path in the Request-URI.
+Therefore, if you provide an <code>app.invite()</code> handler, you
+will receive all incoming INVITEs that the drachtio server sends 
+to your application.</p><p>Multiple callbacks may be given, all are treated
+equally, and behave just like middleware, with the one exception that
+these callbacks may invoke <code>next('route')</code> to bypass the
+remaining route callback(s). This mechanism can be used to perform pre-conditions
+on a route then pass control to subsequent routes when there is no reason to proceed
+with the route matched.
+</p><p>The following snippet illustrates a simple handler to responding to an invite request.
+</p><pre class="js"><code>app.invite(function(req, res){
+  var mySdp = generateLocalSdp() ; //assume user-provided function
+  res.send(180) ;
+  res.send(200, {
+    body: mySdp
+    ,headers: {
+      'content-type': 'application/sdp'
+    }
+  }) ;
+});
+</code></pre><p>Several callbacks may also be passed, useful for re-using middleware
+that load resources, perform validations, etc.
+</p><pre class="js"><code>app.invite(validateSender, function(req, res){
+  // ... 
+})
+</code></pre><p>These callbacks may be passed within arrays as well, these arrays are
+simply flattened when passed:
+</p><pre class="js"><code>var middleware = [validateSender, verifyAcceptableContent];
+
+app.invite(middleware, function(req, res){
+  // ...
+})</code></pre></section><h2>Request</h2><a name="request"></a><section><h3 id="req.active">req.active</h3><p>This property is a boolean value indicating whether the incoming request has been canceled
+by the sender. Only SIP INVITE requests can be canceled, and a value of <code>false</code>
+for <code>req.active</code> indicates that an INVITE request has been canceled.</p><p>Note is an application wishes to be alerted at the time a CANCEL request is received
+it can use the <a href="#req.cancel">req.cancel()</a> method.</p><p>In the example below, an application receives an INVITE at time 0 and begins working to 
+allocate a local IP media endpoint.  At later time 1 a CANCEL request arrives and the
+application sends a success response to the CANCEL.  Still later, at time 2 the function
+returns the session description protocol describing capabilities of the local endpoint that
+was just allocated.  The application then 
+checks and if the request is no longer active it frees the local endpoint and sends a 
+487 Request Terminated final response to the INVITE, otherwise it responds with success
+and an SDP answer in the 200 OK.
+</p><pre class="js"><code>app.invite( function(req, res){
+  req.cancel( function(cancel, cancelRes){
+    console.log('received CANCEL') ;
+    cancelRes.send(200) ; // => response to the CANCEL request
+  }) ;
+  
+  //assume this is user-provided function, could take some milliseconds..
+  allocateLocalSdp(req.body, function( localSdp ){
+    console.log('allocated local media endpoint: %s', localSdp) ;
+    if( req.active ) res.send( 200, {body: mySdp}) ;
+    else {
+      console.log('caller hung up') ;
+      res.send(487) ; // => response to the INVITE request
+      freeLocalSdp( localSdp ) ;
+    }
+  });   
+})
+</code></pre><blockquote><p>Note: some of the above processing is optional.  An application does not necessarily need to install a 
+<code>req.cancel()</code> handler: if no cancel handler is installed drachtio will return a 200 OK to the
+cancel request to the server.  Additionally, the <code>res.send(487)</code> above is somewhat optional as well, 
+because the drachtio-server will always respond to valid CANCEL requests with a 200 OK to the CANCEL and a 487
+to the original INVITE request.   </p></blockquote><blockquote><p>Nonetheless, is is recommended practice to always generate responses to any incoming request that an application
+handles.</p></blockquote></section><section><h3 id="req.body">req.body</h3><p>This property is an string containing the unparsed body of the SIP message.
+</p><pre class="js"><code>app.invite( function(req, res){
+   if( console.log("INVITE contains offer %s", req.body) ;
+}) ;</code></pre></section><section><h3 id="req.cancel">req.cancel()</h3><p>This method takes a callback that will be invoked when a CANCEL request
+is received for an INVITE transaction.
+</p><pre class="js"><code>app.invite( function(req, res){
+  req.cancel( function( cancelRequest, cancelResponse){
+    console.log('received a CANCEL') ;
+    cancelResponse.send(200) ;
+  })
+})</code></pre></section><section><h3 id="req.getbody">req.getBody()</h3><p>This method returns string containing the unparsed body of the SIP message.
+</p><pre class="js"><code>app.invite( function(req, res){
+   if( console.log("INVITE contains offer %s", req.getBody()) ;
+}) ;</code></pre></section><section><h3 id="req.headers">req.headers</h3><p>This property is an object containing the SIP headers for this request, 
+where the lower-cased header name form the keys of the object and
+the values are the SIP header values.
+</p><pre class="js"><code>app.invite( function(req, res){
+   for( var hn in req.headers ) {
+     console.log('header: %s: %s', hn, req.headers[hn]) ;
+   }
+}) ;</code></pre></section><section><h3 id="req.isnewinvite">req.isNewInvite()</h3><p>This method returns true if an incoming request is a new SIP INVITE.
+It will return false if the request is either not an INVITE, or is a 
+re-INVITE within an existing SIP dialog.
+</p><pre class="js"><code>app.invite( function(req, res){
+    if( req.isNewInvite() ) {
+        //handle new invite
+    }
+    else {
+        //handle re-INVITE
+    }
+})</code></pre></section><section><h3 id="req.method">req.method</h3><p>This property is a string value of the request method type.
+</p><pre class="js"><code>app.use( function(req, res){
+  console.log('req method is %s', req.method) ;
+}) ;</code></pre></section><section><h3 id="req.requesturi">req.request_uri</h3><p>This property is a string containing the Request-URI of the SIP request
+</p><pre class="js"><code>app.invite( function(req, res){
+   if( console.log("Request-URI is %s", req.request_uri) ;
+}) ;</code></pre></section><section><h3 id="req.prack">req.prack()</h3><p>This method takes a callback that will be invoked when a PRACK request
+is received for an INVITE transaction.
+</p><pre class="js"><code>app.invite(function(req, res) {
+    res.send( 183,{
+        headers: {
+            require: '100rel'
+            ,supported: '100rel'
+        }
+        ,body: config.sdp
+    }) ;
+    
+    req.prack( function(prack) {
+        // send final response now that we have received PRACK
+        res.send( 200, {body: config.sdp} ) ;
+    }) ;
+}) ;</code></pre></section><section><h3 id="req.source">req.source</h3><p>This property has possible values 'network' or 'application' depending on whether the request
+was received by or sent by the application, respectively.
+</p></section><section><h3 id="req.source_address">req.source_address</h3><p>This property is a string value that contains the IP address of the message sender.</p></section><section><h3 id="req.source_port">req.source_port</h3><p>This property is an integer value that contains the source port of the message sender.</p></section><h2>Response</h2><a name="response"></a><section><h3 id="res.ack">res.ack( [opts] )</h3><p>This method generates an ACK in response to final response to a SIP INVITE.
+</p><pre class="js"><code>app.siprequest( request_uri, {
+    body: localSdp
+}, function(err, req, res) {
+    if( err ) throw err ;
+    if( res.statusCode >= 200 ) res.ack() ;
+}) ;
+</code></pre><p>The opts object, if provided, allows the application to set headers on the
+ACK request, or include a body, as in the case of a deferred SDP offer.
+</p><pre class="js"><code>//deferred SDP offer will be transmitted in the ACK
+app.siprequest( request_uri, function( err, req, res){
+    if( res.statusCode === 200 ) {
+        res.ack({
+            body: localSdp
+        })
+    }
+}) ;</code></pre></section><section><h3 id="res.body">res.body</h3><p>This property is an string containing the unparsed body of the SIP message.
+</p><pre class="js"><code>app.siprequest( request_uri, {
+ body: localSdp
+}
+, function(req, res){
+   if( res.statusCode === 200 ) console.log("response to INVITE contains body %s", res.body) ;
+}) ;</code></pre></section><section><h3 id="res.get">res.get()</h3><p>This method returns the value of a SIP header.  </p><p>Note that, depending on the header requested, 
+the value returned may be a string, an integer, a boolean, or an object describing the 
+sub-fields of the header.  See <a href="http://dracht.io/guide.html#headers">here</a> for details.
+</p><pre class="js"><code>app.siprequest.invite( request_uri, {
+   body: localSdp
+}
+, function(req, res){
+   console.log('remote tag is %s', res.get('to').tag) ;
+}) ;</code></pre></section><section><h3 id="res.getbody">res.getBody()</h3><p>This method returns string containing the unparsed body of the SIP message.
+</p><pre class="js"><code>app.siprequest( request_uri, {
+ body: localSdp
+}
+, function(req, res){
+   if( res.statusCode === 200 ) console.log("response to INVITE contains body %s", res.getBody()) ;
+}) ;</code></pre></section><section><h3 id="res.send">res.send(code, [status], [opts])</h3><p>Send a SIP response.
+</p><pre class="js"><code>res.send(200);
+res.send(404) ;
+res.send(404, 'Phone number not found')
+res.send(480, 'Temporarily Unavailable', {
+  headers: {
+    'retry-after': '1800 (database down)'
+  }
+});
+res.send(200, {
+  body: localSdp
+  ,headers: {
+    'content-type': 'application/sdp'
+  }
+});
+</code></pre><p>The only required parameter is the SIP status code value.  A custom status message
+may be supplied; if none is provided, the customary SIP status message
+for the provided code will be used.
+</p><p>The <code>opts</code> parameter can be used to specify SIP headers or the body to 
+include with the outgoing SIP response.
+</p><p>Note that drachtio-server will fill in most of the required headers in the response
+from the associated incoming request, so the application does not need to specify 
+these headers when calling <code>res.send()</code>.  The following headers will be automatically
+set by drachtio-server on response messages:</p><ul><li>Call-ID (will be set to the Call-ID of the associated request)</li><li>CSeq (will be set to the CSeq of the associated request)</li><li>Contact (will be set to the proper sip contact address of the drachtio server)</li><li>From (will be set to the From of the associated request)</li><li>To (will be set to the To of the associated request; a tag will be added)</li><li>Via (will be set to the Via of the associated request)</li><li>Content-Length (will be calculated based on the supplied body, if any)</li><li>Content-Type (will be set to 'application/sdp' if appropriate; any other content-types should be set by the application)</li></ul></section><section><h3 id="res.set">res.set(name, value)</h3><p>This method sets the value of a SIP header.  The header name and value are both string values.
+</p><pre class="js"><code>app.options( function(req, res){
+   res.set('User-Agent', 'drachtio') ;
+   res.send(200) ;
+}) ;</code></pre></section><section><h3 id="res.setbody">res.setBody( string | Buffer )</h3><p>This method sets the body of a response message.
+</p><pre class="js"><code>app.invite( function( req, res ){
+   res.setBody(localSdp) ;
+   res.send(200) ;
+})</code></pre></section><section><h3 id="res.status">res.status()</h3><p>This method sets the numeric value of the SIP response.  
+</p><pre class="js"><code>app.invite( function(req,res) {
+ res.status(486) ;
+ res.send() ;
+}) ;</code></pre></section><section><h3 id="res.statuscode">res.statusCode</h3><p>This property represents the numeric value in the SIP status line.
+It may be read or written.
+</p><pre class="js"><code>res.statusCode = 404 ;
+res.send() ;
+// => SIP/2.0 404 Not Found
+
+
+app.siprequest.options(request_uri, function(err, req, res){
+  if( res.statusCode >= 200 ) {
+    console.log('received final response with status %d', res.statusCode) ;
+    res.ack() ;
+  }
+}) ;</code></pre></section><h2>Sending SIP Requests</h2><a name="siprequest"></a><section><h3 id="siprequest">app.siprequest[VERB]( [request_uri], [opts], [callback] )</h3><p>The <code>app.siprequest[VERB]</code> methods are used to send a SIP request with the specified method.
+The <code>request_uri</code> parameter specifies the sip address to send the request to, the 
+<code>opts</code> specifies the headers and the body to include with the message, and the callback
+is invoked with every response that is received for the request.
+
+The <code>app.siprequest[VERB]</code> methods all return a <code>request</code> object that 
+has additional methods to allow it to be canceled, or to have its response to be piped upstream
+into an incoming INVITE transaction, as we will see shortly.
+</p><pre class="js"><code>//send an OPTIONs ping..
+app.siprequest.options( request_uri, function( err, req, res ) {
+  if( err ) throw err ;
+  console.log('received response with status %d', res.statusCode) ;
+}) ;
+</code></pre><p>To send an INVITE request, the shortened version <code>app.siprequest</code> can be used
+</p><pre class="js"><code>app.siprequest( request_uri, {
+  body: localSdp
+}
+,function( err, req, res ) {
+  if( err ) throw err ;
+  if( res.statusCode >= 200 ) res.ack() ;
+}
+</code></pre><p>When sending a request within an existing SIP dialog, do not include the <code>request_uri</code>
+parameter; instead, simply include the <code>call-id</code> header for the SIP dialog; the 
+drachtio-server will then set all of the other dialog-level headers appropriately (e.g., CSeq, From, 
+To, etc).
+</p><pre class="js"><code>//terminate an existing SIP dialog
+app.siprequest.bye({
+  headers: {
+    'call-id': myCallId
+  }
+}) ;
+</code></pre><p>drachtio-server will set default values for many of the common headers, so the application does not need to.
+The application should <strong>not</strong> attempt to set the following headers, instead allowing drachtio-server
+to establish their values:</p><ul><li>Call-Id (drachtio-server will generate a unique value for the Call-Id)</li><li>CSeq (drachtio-server will generate a random CSeq value)</li><li>Via (drachtio-server will set the appropriate Via header)</li><li>Contact (drachtio-server will set the appropriate Contact header)</li></ul><p>If no <code>To</code> header is supplied, the provided <code>request_uri</code> will be used as the To header.
+</p><p>There is special support from setting the <code>From</code> header on an outgoing request.  An application can 
+fully construct the <code>From</code> header, but to avoid the extra work of setting the proper IP address
+and so forth, two shorthand forms are supported:
+</p><ul><li>In the first form, the application can simply provide a string value for the user part of the From header (this is usually the calling party number).  drachtio-server will fill out the rest of the From header with the appropriate sip url, generating a tag value, etc</li><li>In the second form, the application can create a full <code>From</code> header, but simply put the string 'localhost' in the</li><host>part of the SIP url.  drachtio-server will replace the string with the proper local IP address.</host></ul><pre class="js"><code>app.siprequest( request_uri, {
+  body: localSdp
+  ,headers: {
+    from: '8005551212'
+  }
+}
+,function( err, req, res ) {
+  //...
+}
+</code></pre><pre class="js"><code>app.siprequest( request_uri, {
+  body: localSdp
+  ,headers: {
+    from: '&quot;DaveH&quot; &lt;sip:8005551212@localhost&gt;isup-oli=27'
+  }
+}
+,function( err, req, res ) {
+  //...
+}
+</code></pre><p>In all cases, the application should let drachtio-server generate the tag value for the From header.</p></section><section><h3 id="siprequest.cancel">request.cancel()</h3></section><p>As mentioned above, calling <code>app.siprequest[VERB]</code> returns a <code>request</code>.
+This object has two useful methods, <code>pipe</code> and <code>cancel</code>
+</p><p>The <code>cancel</code> method can be used to cancel an outgoing request.
+</p><pre class="js"><code>//send a request..
+var r = app.siprequest(request_uri, {
+    body: config.sdp
+}, function( err, req, res ) {
+
+    if( res.statusCode >= 200  ) res.ack() ;
+}) ;
+
+//cancel it two seconds later
+setTimeout( function() {
+    r.cancel() ;
+}, 200) ;</code></pre><section><h3 id="siprequest.pipe">request.pipe( res, [opts], [callback])</h3><p>The <code>pipe</code> method can be used to set up a back-to-back user agent (B2BUA).
+A B2BUA is a common style of application, somewhat akin to a SIP proxy, where an incoming
+SIP call leg (the "A" leg) is terminated and an outgoing SIP call leg (the "B" leg) is
+separately established.  The application terminates the SIP signaling for both legs, but 
+the media flows directly between the A and B endpoints.
+</p><p>To establish this, the responses that come back on the B leg must sent back upstream on 
+the A leg.  The <code>pipe</code> method accomplishes this: it "pipes" the responses from the
+outgoing request back as responses to the incoming invites.  
+</p><p>To do this, the application provides the <code>res</code> object as the first parameter
+to the <code>pipe</code> method.
+</p><pre class="js"><code>//receive an incoming invite (i.e the "A" leg)
+app.invite( function(req, res) {
+
+  //generate a new INVITE (i.e. the "B" leg)
+  var request = app.siprequest( config.remote_uri2, {
+    body: req.body
+  })
+  .pipe( res, function( uacRes ){
+  
+    //if uacRes.statusCode === 200 then both legs are now connected
+    console.log('B leg returned with final response status: ' + uacRes.statusCode + 
+      ' on leg with call-id ' + uacRes.get('call-id'));
+      
+  }) ;
+}) ;
+</code></pre><p>The callback signature is <code>(res, callback)</code>, where the callback receives the responses
+received on the B leg.  There is no need to call <code>res.send()</code> on the A leg <code>res</code>
+object, since <code>pipe</code> handles that for us.</p></section></div></section><script>var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-25235225-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script><a id="top" href="#"><img src="/images/arrow.png"></a><footer><div id="footer-content">© 2012 </div></footer></body></html>
