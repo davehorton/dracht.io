@@ -1,0 +1,10 @@
+section
+  h3(id='app.disable') app.disable(name)
+
+  p.
+    Set setting <code>name</code> to <code>false</code>.
+
+  +js.
+    app.disable('session timer');
+    app.get('session timer');
+    // => false

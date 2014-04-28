@@ -1,0 +1,58 @@
+section
+  h3(id='app.VERB') app.VERB([callback...], callback)
+
+  p.
+    The <code>app.VERB()</code> methods provide the routing functionality
+    in drachtio, where <strong>VERB</strong> is one of the SIP verbs, such
+    as <code>app.invite()</code>. 
+  p.
+    Unlike <a href="http://expressjs.com">express</a> (for those familiar with it), 
+    there is no path string
+    provided in the function signature.  This is because SIP requests, 
+    unlike HTTP requests, rarely or never include a path in the Request-URI.
+    Therefore, if you provide an <code>app.invite()</code> handler, you
+    will receive all incoming INVITEs that the drachtio server sends 
+    to your application.
+  p.
+    Multiple callbacks may be given, all are treated
+    equally, and behave just like middleware, with the one exception that
+    these callbacks may invoke <code>next('route')</code> to bypass the
+    remaining route callback(s). This mechanism can be used to perform pre-conditions
+    on a route then pass control to subsequent routes when there is no reason to proceed
+    with the route matched.
+
+  p.
+    The following snippet illustrates a simple handler to responding to an invite request.
+
+  +js.
+    app.invite(function(req, res){
+      var mySdp = generateLocalSdp() ; //assume user-provided function
+      res.send(180) ;
+      res.send(200, {
+        body: mySdp
+        ,headers: {
+          'content-type': 'application/sdp'
+        }
+      }) ;
+    });
+
+  p.
+    Several callbacks may also be passed, useful for re-using middleware
+    that load resources, perform validations, etc.
+
+  +js.
+    app.invite(validateSender, function(req, res){
+      // ... 
+    })
+
+  p.
+    These callbacks may be passed within arrays as well, these arrays are
+    simply flattened when passed:
+
+  +js.
+    var middleware = [validateSender, verifyAcceptableContent];
+    
+    app.invite(middleware, function(req, res){
+      // ...
+    })
+    

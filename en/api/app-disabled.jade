@@ -1,0 +1,13 @@
+section
+  h3(id='app.disabled') app.disabled(name)
+
+  p.
+    Check if setting <code>name</code> is disabled.
+
+  +js.
+    app.disabled('session timer');
+    // => true
+
+    app.enable('session timer');
+    app.disabled('session timer');
+    // => false

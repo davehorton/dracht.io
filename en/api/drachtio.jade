@@ -1,0 +1,17 @@
+section
+  h3(id='drachtio') drachtio()
+  
+  p.
+    Create a drachtio application.
+
+  +js.
+    var drachtio = require('drachtio');
+    var app = drachtio();
+    
+    app.connect({host:'localhost', port: 8022, secret:'cymru'}) ;
+
+    //respond to OPTIONS ping
+    app.options( function(req, res){
+      res.send(200);
+    });
+    

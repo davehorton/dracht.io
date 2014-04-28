@@ -1,0 +1,13 @@
+section
+  h3(id='app.get') app.get(name)
+
+  p.
+    Get setting <code>name</code> value.
+
+  +js.
+    app.get('user agent');
+    // => undefined
+
+    app.set('user agent', 'Techniz 1.0');
+    app.get('user agent');
+    // => "Techniz 1.0"

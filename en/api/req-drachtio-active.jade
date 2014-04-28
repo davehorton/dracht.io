@@ -1,0 +1,50 @@
+section
+  h3(id='req.active') req.active
+
+  p.
+    This property is a boolean value indicating whether the incoming request has been canceled
+    by the sender. Only SIP INVITE requests can be canceled, and a value of <code>false</code>
+    for <code>req.active</code> indicates that an INVITE request has been canceled.
+  p.
+    Note is an application wishes to be alerted at the time a CANCEL request is received
+    it can use the <a href="#req.cancel">req.cancel()</a> method.
+  p.
+    In the example below, an application receives an INVITE at time 0 and begins working to 
+    allocate a local IP media endpoint.  At later time 1 a CANCEL request arrives and the
+    application sends a success response to the CANCEL.  Still later, at time 2 the function
+    returns the session description protocol describing capabilities of the local endpoint that
+    was just allocated.  The application then 
+    checks and if the request is no longer active it frees the local endpoint and sends a 
+    487 Request Terminated final response to the INVITE, otherwise it responds with success
+    and an SDP answer in the 200 OK.
+
+  +js.
+    app.invite( function(req, res){
+      req.cancel( function(cancel, cancelRes){
+        console.log('received CANCEL') ;
+        cancelRes.send(200) ; // => response to the CANCEL request
+      }) ;
+
+      //assume this is user-provided function, could take some milliseconds..
+      allocateLocalSdp(req.body, function( localSdp ){
+        console.log('allocated local media endpoint: %s', localSdp) ;
+        if( req.active ) res.send( 200, {body: mySdp}) ;
+        else {
+          console.log('caller hung up') ;
+          res.send(487) ; // => response to the INVITE request
+          freeLocalSdp( localSdp ) ;
+        }
+      });   
+    })
+
+  blockquote
+    p.
+      Note: some of the above processing is optional.  An application does not necessarily need to install a 
+      <code>req.cancel()</code> handler: if no cancel handler is installed drachtio will return a 200 OK to the
+      cancel request to the server.  Additionally, the <code>res.send(487)</code> above is somewhat optional as well, 
+      because the drachtio-server will always respond to valid CANCEL requests with a 200 OK to the CANCEL and a 487
+      to the original INVITE request.   
+  blockquote
+    p.
+      Nonetheless, is is recommended practice to always generate responses to any incoming request that an application
+      handles.

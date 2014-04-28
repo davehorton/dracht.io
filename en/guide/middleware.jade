@@ -1,0 +1,56 @@
+section
+  h3(id='middleware') Using middleware
+
+  p.
+    An application can use drachtio middleware to intercept, filter, augment, and respond to SIP messages. 
+    For those familiar with <a href="http://expressjs.com">express</a>, this will be very similar. 
+
+  p.
+    Middleware is installed using by calling <code>app#use</code>, passing a middleware function.  The middleware will 
+    receive the incoming message via the usual <code>req, res</code> objects and can perform any needed processing on the 
+    incoming message.  It may also generate a response to an incoming request if desired; if not it should call <code>next()</code>
+    in order to pass the message on to the next layer.
+
+  p.
+    The example below shows how middleware could be used to filter and reject all incoming SIP messages 
+    except those sent from one specific address
+
+  +js.
+    app.use( function( req, res, next ) {
+      if( req.signaling_address !== '192.168.1.52' ) return res.send(403) ; 
+      next() ;
+    }) ;
+    app.invite( function( req, res ) { 
+      //if we get here, we know we have a valid sender
+
+  p.
+    The <code>app.use</code> method can take an optional first parameter that scopes the middleware only to specific
+    types of SIP messages.  The parameter is a string which may be one of the SIP method types 
+    (e.g. 'invite', 'register', 'info') or 'response'; providing this parameter will cause only requests of the
+    specified type, or only responses, respectively, to be passed through the middleware.
+
+  p.
+    The example below shows how an example middleware function might be constructed to provide authentication
+    for SIP register messages.  In this example, <code>digestAuthMiddleware</code> would be a function that, when
+    invoked, would return a middleware function.  The <code>digestAuthMiddleware</code> function takes two arguments, 
+    the first of which is a domain that is expected to appear in the Authorization header.  The second is 
+    a callback that will be invoked after the middleware function has parsed the user information out of the
+    header.  The callback provides the realm and username, along with a function that can be invoked to 
+    supply the associated password, or an error string if the username is not valid.
+
+  +js.
+    app.use('register', digestAuthMiddleware('dracht.io', function( realm, user, fn) {
+      //here we simply return 'foobar' as password; real-world we'd hit a database or something..
+      fn( null, 'foobar') ;
+    })) ;
+    app.register( function(req, res){
+      //if we get here we have an authenticated user
+    }) ;
+
+  h4 Error-handling middleware
+  p.
+    Most middleware is defined with an arity of 3; having a signature <code>(req, res, next)</code> as shown in 
+    the examples above.  Error-handling middleware can be defined and will have an arity of 4: 
+    <code>(err, req, res, next)</code>.  Error-handling middleware will be called only when an error has been 
+    returned from a lower-level middleware layer via a call to <code>next(err)</code>.
+

@@ -1,0 +1,55 @@
+section
+  h3(id='sending') Sending SIP requests
+
+  p.
+    SIP requests can be sent using the <code>app.siprequest[verb]</code> methods:
+
+  +js.
+    // send one OPTIONS ping after connecting to the server, and then exit 
+    app.once('connect', function() {
+        app.siprequest.options('sip:1234@10.168.12.139', function( err, req, res ) {
+            if( err ) console.error( err ) ;
+            else debug('received response with status is ', res.statusCode ) ;
+
+            app.disconnect() ;
+        }) ;
+    }) ;
+
+  p.
+    The callback receives <code>Request</code> and <code>Response</code> objects: in this case, <code>req</code> describes the sip request that was sent, while the <code>res</code> describes the sip response that was received. (Note: the <code>req.source</code> property will be set to either 'application' or 'network' depending on whether the request was sent by the application or received by the application, respectively).
+
+  blockquote
+    ul
+      li drachtio-server automatically generates a unique Call-ID for you, and populates the Contact and Via headers appropriately, so there is no need for the application to supply these headers.
+
+      li When sending an INVITE, the shorthand form <code>app.siprequest()</code> may be used in place of <code>app.siprequest.invite()</code>
+
+  p.
+    The signature of the <code>app.uac[verb]</code> function is <code>(request_uri, opts, callback)</code>.  As shown in the example above, <code>opts</code> can be left out if there is no need to specify sip headers or a body in the outgoing message.  
+
+  p.
+    When sending a sip request <strong>within</strong> an existing SIP dialog, only the <code>call-id</code> header needs to be supplied and dractio-server will automatically populate the other dialog-level headers of the message (e.g. Request-URI, CSeq, From, To).
+
+  +js.
+    app.siprequest.bye({headers:{'call-id': myCallId}}) ;
+
+  h4 Sending ACK requests
+
+  p.
+    Sip INVITE messages have the additional feature of being concluded with an sip ACK request. Your application can generate the ACK to an INVITE with the <code>res#ack</code> method of the Response object provided to the <code>app.siprequest</code> callback.  
+
+  +js.
+    var app = require('drachtio')() ;
+    app.connect({host:'localhost', port: 8022, secret: 'cymru'}) ;
+    app.on('connect', function() {
+        app.siprequest('sip:1234@192.168.173.139', {
+          body: mySdp
+        }, function( err, req, res ) {
+            if( err ) throw( err ) ;
+            if( res.statusCode >= 200 ) res.ack() ;
+         }) ;
+    }) ;
+
+  blockquote
+    p.
+      Note that in all cases except for a deferred SDP offer (i.e., where the ACK contains an SDP body) the drachtio-server automatically generates the ACK request itself.  Nonetheless, your application should always call <code>res#ack</code> upon receiving a final response to an INVITE because some internal library processing depends on it.

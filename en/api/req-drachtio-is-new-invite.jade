@@ -1,0 +1,17 @@
+section
+  h3(id='req.isnewinvite') req.isNewInvite()
+
+  p.
+    This method returns true if an incoming request is a new SIP INVITE.
+    It will return false if the request is either not an INVITE, or is a 
+    re-INVITE within an existing SIP dialog.
+
+  +js.
+    app.invite( function(req, res){
+        if( req.isNewInvite() ) {
+            //handle new invite
+        }
+        else {
+            //handle re-INVITE
+        }
+    })

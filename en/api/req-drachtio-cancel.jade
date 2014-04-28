@@ -1,0 +1,14 @@
+section
+  h3(id='req.cancel') req.cancel()
+
+  p.
+    This method takes a callback that will be invoked when a CANCEL request
+    is received for an INVITE transaction.
+
+  +js.
+    app.invite( function(req, res){
+      req.cancel( function( cancelRequest, cancelResponse){
+        console.log('received a CANCEL') ;
+        cancelResponse.send(200) ;
+      })
+    })

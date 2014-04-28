@@ -1,0 +1,99 @@
+section
+  h3(id='intro') Getting started
+
+  p.
+    With node installed (<a href="http://nodejs.org/download">download</a>),
+    get an application started by creating a directory somewhere
+    on your machine:
+
+  +shell.
+    $ mkdir simple-test
+
+  p.
+    Of course, as with any node application you'll need a package.json
+    file in the directory, with drachtio defined as a dependency. You can use
+    <code>npm info drachtio version</code> to determine the latest version, or
+    simply use the wildcard "*".
+
+  +js.
+    {
+      "name": "simple-test",
+      "description": "simple drachtio test",
+      "version": "0.0.1",
+      "private": true,
+      "dependencies": {
+        "drachtio": "*"
+      }
+    }
+
+  p.
+    Now that you have a package.json file in this directory you can use
+    <code>npm(1)</code> to install the dependencies:
+
+  +shell.
+    $ npm install
+
+  p.
+    Once npm finishes you'll have a localized drachtio dependency in
+    the ./node_modules directory. 
+ 
+  p.
+    Now let's create a simple application. Create a file named app.js, 
+    require drachtio and then create a new application by invoking the returned function:
+
+  +js.
+    var drachtio = require('drachtio');
+    var app = drachtio();
+
+  p.
+    The next thing you must do is connect to a dractio server.  The drachtio server is a standalone server (i.e., 
+    it is running outside of the node.js server process) and it provides the actual SIP endpoint that your application 
+    will be controlling.  Many applications may connect to the same server, and the server process may be co-located
+    on the same server as your drachtio application, or they may connect across a network.  You will need to know the
+    location of the drachtio server, the port it is listening on for connections, and the shared secret that is used
+    for authentication.  Instructions on building and installing the server can be found 
+    <a href="https://github.com/davehorton/drachtio-server">here</a>
+
+  p.
+    In the example below, we are connecting to a drachtio server that is running on the same server as our application.
+
+  +js.
+    app.connect({host:'localhost',port:8022, secret:'cymru'});
+
+  p.
+    With the new application instance you can start defining handlers for sip requests via <code>app.VERB()</code>;
+    in this case, we will respond to incoming INVITEs with a 486 SIP response and a custom header. The <code>req</code> and
+    <code>res</code> objects provided to your callback represent incoming SIP request and the response that will be returned
+    by your application.  
+
+  +js.
+    app.invite(function(req, res){
+      res.send(486, {
+        headers:{
+          'retry-after': '1800 (when I wake up)'
+        }
+      });
+    });
+
+  p.
+    For the sake of clarity, here is our entire simple application:
+
+  +js.
+    var drachtio = require('drachtio')
+    , app = drachtio() ;
+
+    app.connect({host:'localhost',port:8022,secret:'cyrmu'}) ;
+
+    app.invite(function(req, res){
+      res.send(486, {
+        headers:{
+          'retry-after': '1800 (when I wake up)'
+        }
+      });
+    });
+
+  p.
+    That's it!  To test, point a sip phone at the dractio server and place a call.
+
+  p.
+    In the sections that follow, we will cover the most common features of drachtio in a bit more detail.

@@ -1,0 +1,11 @@
+section
+  h3(id='res.set') res.set(name, value)
+
+  p.
+    This method sets the value of a SIP header.  The header name and value are both string values.
+
+  +js.
+   app.options( function(req, res){
+      res.set('User-Agent', 'drachtio') ;
+      res.send(200) ;
+   }) ;

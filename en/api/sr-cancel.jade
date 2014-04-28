@@ -1,0 +1,23 @@
+section
+  h3(id='siprequest.cancel') request.cancel()
+
+ p.
+    As mentioned above, calling <code>app.siprequest[VERB]</code> returns a <code>request</code>.
+    This object has two useful methods, <code>pipe</code> and <code>cancel</code>
+
+  p.
+    The <code>cancel</code> method can be used to cancel an outgoing request.
+
+  +js.
+    //send a request..
+    var r = app.siprequest(request_uri, {
+        body: config.sdp
+    }, function( err, req, res ) {
+
+        if( res.statusCode >= 200  ) res.ack() ;
+    }) ;
+
+    //cancel it two seconds later
+    setTimeout( function() {
+        r.cancel() ;
+    }, 200) ;

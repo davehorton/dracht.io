@@ -1,0 +1,48 @@
+section
+  h3(id='b2bua') Back-to-back user agent
+
+  p.
+    A B2BUA is a common sip pattern, where a sip application acts as both a User agent client (UAC), and a User agent server (UAS).  In other words, the application receives a sip INVITE (acting as an UAS) and then turns around and generates a new INVITE that offers the same session description protocol being offered in the incoming INVITE.  Many sip applications are written as using the B2BUA pattern because it offers a great degree of control over each SIP call leg.
+
+  p.
+    Creating a B2BUA is easy: in your <code>app.invite</code> handler, simply generate a sip request as shown above, and pipe the resulting object back into the response.
+
+  +js.
+    //receive an incoming invite (i.e the "A" leg)
+    app.invite( function(req, res) {
+
+      //generate a new INVITE (i.e. the "B" leg)
+      var request = app.siprequest( config.remote_uri2, {
+        body: req.body
+      })
+      .pipe( res, function( uacRes ){
+
+        //if uacRes.statusCode === 200 then both legs are now connected
+        console.log('B leg returned with final response status: ' + uacRes.statusCode + 
+          ' on leg with call-id ' + uacRes.get('call-id'));
+
+      }) ;
+    }) ;
+
+  p.
+    In the example above, we see that the callback function passed to <code>request#pipe</code>pipe will receive the final response object on the B leg.
+  p.
+    The <code>pipe</code> method call is a just a bit of syntactic sugar: the same thing could have been accomplished with a bit more elbow grease:
+
+  +js.
+    //receive an incoming invite (i.e the "A" leg)
+    app.invite( function(req, res) {
+
+      //generate a new INVITE (i.e. the "B" leg)
+      app.siprequest( config.remote_uri2, {
+        body: req.body
+      }, function( err, uacReq, uacRes ) {
+        assert(!err) ;
+
+        //send all responses from B back upstream on the A leg
+        res.send( uacRes.statusCode, {
+          body: uacRes.body
+        }) ;
+        if( uacRes.statusCode >= 200 ) uacRes.ack() ;               
+      }) ;
+    }) ;

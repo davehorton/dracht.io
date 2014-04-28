@@ -1,0 +1,93 @@
+section
+  h3(id='siprequest') app.siprequest[VERB]( [request_uri], [opts], [callback] )
+
+  p.
+    The <code>app.siprequest[VERB]</code> methods are used to send a SIP request with the specified method.
+    The <code>request_uri</code> parameter specifies the sip address to send the request to, the 
+    <code>opts</code> specifies the headers and the body to include with the message, and the callback
+    is invoked with every response that is received for the request.
+
+    The <code>app.siprequest[VERB]</code> methods all return a <code>request</code> object that 
+    has additional methods to allow it to be canceled, or to have its response to be piped upstream
+    into an incoming INVITE transaction, as we will see shortly.
+
+  +js.
+    //send an OPTIONs ping..
+    app.siprequest.options( request_uri, function( err, req, res ) {
+      if( err ) throw err ;
+      console.log('received response with status %d', res.statusCode) ;
+    }) ;
+
+  p.
+    To send an INVITE request, the shortened version <code>app.siprequest</code> can be used
+
+  +js.
+    app.siprequest( request_uri, {
+      body: localSdp
+    }
+    ,function( err, req, res ) {
+      if( err ) throw err ;
+      if( res.statusCode >= 200 ) res.ack() ;
+    }
+
+  p.
+    When sending a request within an existing SIP dialog, do not include the <code>request_uri</code>
+    parameter; instead, simply include the <code>call-id</code> header for the SIP dialog; the 
+    drachtio-server will then set all of the other dialog-level headers appropriately (e.g., CSeq, From, 
+    To, etc).
+
+  +js.
+    //terminate an existing SIP dialog
+    app.siprequest.bye({
+      headers: {
+        'call-id': myCallId
+      }
+    }) ;
+
+  p.
+    drachtio-server will set default values for many of the common headers, so the application does not need to.
+    The application should <strong>not</strong> attempt to set the following headers, instead allowing drachtio-server
+    to establish their values:
+  ul
+    li Call-Id (drachtio-server will generate a unique value for the Call-Id)
+    li CSeq (drachtio-server will generate a random CSeq value)
+    li Via (drachtio-server will set the appropriate Via header)
+    li Contact (drachtio-server will set the appropriate Contact header)
+
+  p.
+    If no <code>To</code> header is supplied, the provided <code>request_uri</code> will be used as the To header.
+
+  p.
+    There is special support from setting the <code>From</code> header on an outgoing request.  An application can 
+    fully construct the <code>From</code> header, but to avoid the extra work of setting the proper IP address
+    and so forth, two shorthand forms are supported:
+
+  ul
+    li In the first form, the application can simply provide a string value for the user part of the From header (this is usually the calling party number).  drachtio-server will fill out the rest of the From header with the appropriate sip url, generating a tag value, etc
+    li In the second form, the application can create a full <code>From</code> header, but simply put the string 'localhost' in the
+    host part of the SIP url.  drachtio-server will replace the string with the proper local IP address.
+
+  +js.
+    app.siprequest( request_uri, {
+      body: localSdp
+      ,headers: {
+        from: '8005551212'
+      }
+    }
+    ,function( err, req, res ) {
+      //...
+    }
+
+  +js.
+    app.siprequest( request_uri, {
+      body: localSdp
+      ,headers: {
+        from: '&quot;DaveH&quot; &lt;sip:8005551212@localhost&gt;isup-oli=27'
+      }
+    }
+    ,function( err, req, res ) {
+      //...
+    }
+
+  p.
+    In all cases, the application should let drachtio-server generate the tag value for the From header.

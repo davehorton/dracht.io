@@ -1,0 +1,40 @@
+section
+  h3(id='siprequest.pipe') request.pipe( res, [opts], [callback])
+
+  p.
+    The <code>pipe</code> method can be used to set up a back-to-back user agent (B2BUA).
+    A B2BUA is a common style of application, somewhat akin to a SIP proxy, where an incoming
+    SIP call leg (the "A" leg) is terminated and an outgoing SIP call leg (the "B" leg) is
+    separately established.  The application terminates the SIP signaling for both legs, but 
+    the media flows directly between the A and B endpoints.
+
+  p.
+    To establish this, the responses that come back on the B leg must sent back upstream on 
+    the A leg.  The <code>pipe</code> method accomplishes this: it "pipes" the responses from the
+    outgoing request back as responses to the incoming invites.  
+
+  p.
+    To do this, the application provides the <code>res</code> object as the first parameter
+    to the <code>pipe</code> method.
+
+  +js.
+    //receive an incoming invite (i.e the "A" leg)
+    app.invite( function(req, res) {
+
+      //generate a new INVITE (i.e. the "B" leg)
+      var request = app.siprequest( config.remote_uri2, {
+        body: req.body
+      })
+      .pipe( res, function( uacRes ){
+
+        //if uacRes.statusCode === 200 then both legs are now connected
+        console.log('B leg returned with final response status: ' + uacRes.statusCode + 
+          ' on leg with call-id ' + uacRes.get('call-id'));
+
+      }) ;
+    }) ;
+
+  p.
+    The callback signature is <code>(res, callback)</code>, where the callback receives the responses
+    received on the B leg.  There is no need to call <code>res.send()</code> on the A leg <code>res</code>
+    object, since <code>pipe</code> handles that for us.

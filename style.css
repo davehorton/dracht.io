@@ -86,15 +86,60 @@ nav a {
 }
 
 /* logo */
+/* DH */
+#logo > a {
+  background: url(/images/drachtio-logo-black-300-pixels.png) no-repeat;
+  display: block;
+  height: 137px;
+  left: 50px;
+  position: absolute;
+  text-indent: -5000em;
+  top: 40px;
+  width: 368px;
+  z-index: 4;  
+}
+#logo .definition {
+  position: relative;
+  top: 190px;
+  left: -90px;
+}
+a.forkme img {
+  width: 75%;
+  position: absolute;
+  top: -35px;
+}
+
+#sip-header-definitions-note {
+  position: absolute;
+  width: 200px;
+  padding-top: 25px;
+}
+#sip-header-definitions-display {
+  margin-left: 220px;
+  padding-bottom: 20px;
+}
+#sip-header-definitions select {
+  margin-left: 220px;
+}
+#sip-header-definitions label {
+  position: absolute;
+}
+/* end DH */
 
 #logo {
   margin-top: 180px;
   margin-bottom: 180px;
   margin-left: 80px;
   padding-left: 40px;
-  width: 440px;
+  /* width: 440px; DH */
   border-left: 1px dotted #eee;
   -webkit-font-smoothing: antialiased;
+}
+.tagline {
+  text-align: right ;
+  position: relative;
+  left: 30px;
+  top: 60px;
 }
 
 #logo .express {
@@ -104,7 +149,7 @@ nav a {
   color: #353535;
   width: 100%;
 }
-
+/*
 #logo .description {
   position: relative;
   top: -5px;
@@ -112,7 +157,15 @@ nav a {
   color: #cecece;
   line-height: .75;
 }
-
+*/
+/* DH */
+#logo .description {
+  font: 100 60px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #cecece;
+  line-height: .75;
+  text-align: right;
+}
+/* DH */
 #logo em {
   font-style: normal;
   font-weight: 100;
@@ -120,10 +173,11 @@ nav a {
   color: #999;
   margin-left: 5px;
 }
-
+/* DH
 #logo a {
   color: #cecece;
 }
+*/
 
 #logo a:hover {
   text-decoration: none;
@@ -133,7 +187,7 @@ nav a {
 /* secondary page logo */
 
 .inner header {
-  position: fixed;
+ /*  position: fixed; */
   top: 0;
   left: 0;
   background: rgba(255,255,255,.9);
@@ -148,7 +202,7 @@ nav a {
 }
 
 .inner #logo {
-  position: fixed;
+ /*  position: fixed; DH */
   top: 0;
   margin: 0;
   padding: 10px 25px;
@@ -165,6 +219,10 @@ nav a {
 }
 
 .inner .description {
+  display: none;
+}
+
+.inner #logo .definition {
   display: none;
 }
 
@@ -294,7 +352,7 @@ html[xmlns] .clearfix {
 }
 
 #boxes section {
-  width: 180px;
+  width: 230px;
   margin: 0 25px;
   float: left;
   /* fix grid jank. #105 */
@@ -469,9 +527,14 @@ html[xmlns] .clearfix {
   position: relative;
 }
 
+#contribute {
+  position: relative;
+}
+/*
 #book img {
   position: absolute;
   top: 0;
   right: -110px;
   width: 50%;
 }
+*/

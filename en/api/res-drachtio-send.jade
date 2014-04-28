@@ -1,0 +1,47 @@
+section
+  h3(id='res.send') res.send(code, [status], [opts])
+  
+  p.
+    Send a SIP response.
+
+  +js.
+    res.send(200);
+    res.send(404) ;
+    res.send(404, 'Phone number not found')
+    res.send(480, 'Temporarily Unavailable', {
+      headers: {
+        'retry-after': '1800 (database down)'
+      }
+    });
+    res.send(200, {
+      body: localSdp
+      ,headers: {
+        'content-type': 'application/sdp'
+      }
+    });
+
+  p.
+    The only required parameter is the SIP status code value.  A custom status message
+    may be supplied; if none is provided, the customary SIP status message
+    for the provided code will be used.
+
+  p.
+    The <code>opts</code> parameter can be used to specify SIP headers or the body to 
+    include with the outgoing SIP response.
+
+  p.
+    Note that drachtio-server will fill in most of the required headers in the response
+    from the associated incoming request, so the application does not need to specify 
+    these headers when calling <code>res.send()</code>.  The following headers will be automatically
+    set by drachtio-server on response messages:
+  ul
+    li Call-ID (will be set to the Call-ID of the associated request)
+    li CSeq (will be set to the CSeq of the associated request)
+    li Contact (will be set to the proper sip contact address of the drachtio server)
+    li From (will be set to the From of the associated request)
+    li To (will be set to the To of the associated request; a tag will be added)
+    li Via (will be set to the Via of the associated request)
+    li Content-Length (will be calculated based on the supplied body, if any)
+    li Content-Type (will be set to 'application/sdp' if appropriate; any other content-types should be set by the application)
+
+ 

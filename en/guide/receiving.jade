@@ -1,0 +1,65 @@
+section
+    h3(id='receiving') Receiving SIP requests
+
+    p.
+        A drachtio application can both send and receive SIP requests.  To receive SIP requests, <code>app[verb]</code> methods are used.  Request and Response objects are provided to the callback: the Request object contains information describing the incoming sip request, while the Response object contains methods that allow the application to control the generation of the sip response. 
+
+    +js.
+        app.invite( function( req, res ) {
+            res.send( 200, {
+                body: mySdp
+            }
+        }) ;
+    p.
+        The `res.send` method can take up to three arguments: <code>(code, status, opts)</code>
+    ul
+        li <code>code</code> is required and is the numeric SIP response value
+        li <code>status</code> is optional and is a custom status text value that will appear in the SIP response line; if not provided the default sip status for the code provided will be used.
+        li <code>opts</code> is optional and is a javascript object containing values that control the generation of the response; most notably a `body` property which provides a value for the body of the SIP response and a `headers` property which provides one or more SIP headers that will be populated in the response.
+
+    +js.
+        app.invite( function( req, res ) {
+            res.send(480, 'Database down' ) ;{
+                headers: {
+                    'retry-after': "1800 (scheduled maintenance)"
+                    ,'server': 'my test server'
+                }
+            }) ;
+        }) ;
+    blockquote
+        p Note the following
+            ul
+                li drachtio-server automatically sends a 100 Trying to all incoming INVITE messages, so there is no need to do so from your application.
+                li drachtio-server automatically includes a 'Content-Length' header to any message that includes a body, so there is no need for your application to include that header.
+                li drachtio-server also automatically includes a'Content-Type' header of 'application/sdp' to any message that includes a session description protocol.
+
+    h4 Receiving a SIP CANCEL request
+    p.
+        There is a special case for handling SIP requests that arrive during an INVITE transaction, and which modify that transaction.  These are the SIP <code>CANCEL</code>, <code>PRACK</code>, or <code>UPDATE</code> messages.  The latter two methods come into play with reliable provisional responses, which will be discussed later in this guide.  An incoming <code>CANCEL</code> message is handled by the <code>cancel</code>method on the <code>INVITE</code> request object that it applies to.  
+
+    p.
+        Additionally, an application can check the status of the <code>req</code> object at any time to see if it was canceled by getting the <code>active</code> property, which will be set to false if the request has been canceled by the sender:
+
+    +js.
+        app.invite( function(req, res ){
+            req.cancel( function( cancelRequest, cancelResponse ){
+                console.log('INVITE was canceled!') ;
+                cancelResponse.send(200) ;
+            }) ;
+            ...
+
+            req.active && req.send(180) ;
+
+        }) ;
+
+    p.
+        drachtio-server handles an incoming CANCEL request for an INVITE-in-progress by generating a 200 OK response to the CANCEL request and a 487 response to the original INVITE request.  Therefore, your application does not necessarily need to provide a final response to either the CANCEL or the INVITE, although it does no harm to do so -- any responses provided by your application will be silently dropped in this case by the server.
+
+    h4 Default SIP responses
+
+    p.
+        The drachtio middleware will respond to incoming SIP requests itself if your application does not call <code>res.send</code> to provide a response.  The default response processing works as follows:
+
+    ul
+        li incoming INVITE request : a 404 Not Found will be returned
+        li all other incoming requests: a 200 OK will be returned

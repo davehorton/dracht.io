@@ -1,0 +1,10 @@
+section
+  h3(id='req.method') req.method
+
+  p.
+    This property is a string value of the request method type.
+
+  +js.
+    app.use( function(req, res){
+      console.log('req method is %s', req.method) ;
+    }) ;

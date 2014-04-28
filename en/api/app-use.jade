@@ -1,0 +1,41 @@
+section
+  h3(id='app.use') app.use([method], function)
+  
+  p.
+    Use the given middleware <code>function</code>, with optional method selector that is either 
+    the name of a SIP method, or the string 'reponse'.  If not provided, the given middleware
+    will be executed on all incoming messages.
+
+  +js.
+
+    // simple logger for all incoming messages
+    app.use(function(req, res, next){
+      if( req.source === 'network' ) {
+        console.log('received %s request from %s:%s', req.method, req.source_address, req.source_port);
+      }
+      else {
+        console.log('received status %d on response from %s:%s', res.statusCode, res.source_address,res.source_port) ;
+      }
+      next();
+    });
+
+    // followed by middleware that responds to register requests if no credentials have been supplied
+    app.use('register', function( req, res, next ) {
+      if( !req.has('authorization') ) {
+        var www_auth_header = generateWWWAuthenticate( req ) ;  //user-provided function
+        res.send(400, {
+          headers: {
+            'www-authenticate': www_auth_header
+          }
+        }) ;
+        return ;
+      }
+      next() ;
+    }
+
+    //followed by register handler, which can assume at this point credentials have been supplied
+    app.register( function( req, res ){
+      //TODO: check credentials and respond accordingly
+    }) ;  
+
+  

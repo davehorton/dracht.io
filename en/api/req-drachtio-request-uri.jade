@@ -1,0 +1,10 @@
+section
+  h3(id='req.requesturi') req.request_uri
+
+  p.
+    This property is a string containing the Request-URI of the SIP request
+
+  +js.
+   app.invite( function(req, res){
+      if( console.log("Request-URI is %s", req.request_uri) ;
+   }) ;

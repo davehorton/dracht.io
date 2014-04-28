@@ -1,0 +1,15 @@
+section
+  h3(id='req.get') req.get()
+
+  p.
+    This method returns the value of a SIP header.  
+  p.
+    Note that, depending on the header requested, 
+    the value returned may be a string, an integer, a boolean, or an object describing the 
+    sub-fields of the header.  See <a href="http://dracht.io/guide.html#headers">here</a> for details.
+
+  +js.
+   app.invite( function(req, res){
+      console.log("received incoming INVITE with call-id %s", req.get('call-id')) ;
+      console.log("tag on From header is %s", req.get('from').tag) ;
+   }) ;

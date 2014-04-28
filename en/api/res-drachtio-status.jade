@@ -1,0 +1,11 @@
+section
+  h3(id='res.status') res.status()
+
+  p.
+    This method sets the numeric value of the SIP response.  
+
+  +js.
+   app.invite( function(req,res) {
+    res.status(486) ;
+    res.send() ;
+   }) ;

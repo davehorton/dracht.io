@@ -1,0 +1,377 @@
+section
+  h3(id='headers') Managing SIP headers
+
+  p.
+    The previous sections introduced the concept of setting SIP headers on messages, without going into much detail.  Let's look at this in a bit more detail now.
+
+  h4 Setting SIP headers on outgoing messages
+
+  p.
+    An application can set a header on an outgoing SIP request either in the <code>res#send</code> method -- by populating the <code>headers</code> object within the <code>opts</code> parameter -- or by calling <code>res#set</code> method before sending the response.  In either case, the header name and value are provided as string values.
+
+  blockquote.
+    Note that well-known SIP headers can be identified by all lowercase names, if desired
+
+  +js.
+    app.invite( function(req, res) {
+      res.set('server','my server') ;
+      res.send(183, {
+        headers: {
+          supported: '100rel'
+        }
+      }) ;
+    }) ;
+  
+  h4 Reading SIP headers on incoming messages
+
+  p.
+    SIP headers on incoming SIP messages can be obtained via <code>req#get</code> or <code>res#get</code> methods.  
+    
+  p.
+    Note that these methods return an object, not a string.  drachtio pre-parses each header attached to an incoming message
+    into an object structure that makes it easy for you to retrieve specific information elements within the header, e.g.:
+
+  +js.
+    app.invite( function(req, res) {
+      console.log('remote tag is ' + req.get('from').tag ) ;
+      ...
+    }) ;
+
+  p.
+    The structure of the object returned for each header on an incoming SIP message is shown below.
+
+  blockquote.
+    Note: custom headers, or headers not shown in the list below, are presented to the application as string values
+
+  #sip-header-definitions
+    h4 SIP header object definitions
+
+    label(for="sip-header-definitions-select") Header:
+    select#sip-header-definitions-select
+      option Choose SIP Header
+    #sip-header-definitions-note
+      span.
+    #sip-header-definitions-display(style="display:none")
+      .definition 
+        pre.js
+          code
+
+    #sip-header-definitions-list(style="display:none")
+      .hdr-component.url.
+        {
+          scheme: string //e.g. ['sip','tel', etc]
+          user: string
+          password: string
+          host: string
+          port: string
+          path: string    //path part, starts with "/"
+          params: string    //separated by ;
+          headers: string   //separated by ? and &
+          fragment: string  //separated by #
+        }
+      .hdr(data-display-name="Accept").
+        {
+          type: string
+          subtype: string
+          q: string
+          params: [string]
+        }
+      .hdr(data-display-name="Accept-Encoding").
+        {
+          value: string
+          q: string
+          params: [string]
+        }
+      .hdr(data-display-name="Accept-Language").
+        [string]
+      .hdr(data-display-name="Alert-Info").
+        [{
+          url: ::url::
+          params: [string]
+        }]
+      .hdr(data-display-name="Allow").
+        {
+          value: string
+          q: string
+          params: [string]
+        }
+      .hdr(data-display-name="Allow-Events").
+        [string]
+      .hdr(data-display-name="Authentication-Info").
+        [string]
+      .hdr(data-display-name="Authorization").
+       [{
+          scheme: string
+          params: [string]
+        }]
+      .hdr(data-display-name="Caller-Prefs").
+        {
+          q: string
+          require: integer
+          explicit: integer
+          params: [string]
+        }
+      .hdr(data-display-name="Call-ID", data-display-note="The SIP Call-ID is returned as a simple string").
+        string
+      .hdr(data-display-name="Call-Info").
+        [{
+          purpose: string
+          url: ::url::
+          params: [string]
+        }]
+      .hdr(data-display-name="Contact").
+        {
+          display: string
+          comment: string
+          q: string
+          expires: string
+          params: [string]
+          url: ::url::
+        }
+      .hdr(data-display-name="Content-Disposition").
+        {
+          type: string
+          handling: string
+          required: integer
+          optional: integer
+          params: [string]
+        }
+      .hdr(data-display-name="Content-Encoding").
+        [string]
+      .hdr(data-display-name="Content-Length").
+        integer
+      .hdr(data-display-name="CSeq").
+        {
+          seq: integer  
+          method: string
+        }
+      .hdr(data-display-name="Date").
+        integer
+      .hdr(data-display-name="Error-Info").
+        {
+          url: ::url::
+          params: [string]
+        }
+      .hdr(data-display-name="E-Tag").
+        string
+      .hdr(data-display-name="Event").
+        {
+          url: ::url::
+          params: [string]
+        }
+      .hdr(data-display-name="Expires").
+        integer
+      .hdr(data-display-name="From").
+        {
+          display: string
+          comment: string
+          tag: string
+          params:[string]
+          url: ::url::
+        }
+      .hdr(data-display-name="If-Match").
+        string
+      .hdr(data-display-name="In-Reply-To").
+        [ string ]
+      .hdr(data-display-name="Mime-Version").
+        string
+      .hdr(data-display-name="Min-SE").
+        {
+          delta: integer
+          params:[string]
+        }
+      .hdr(data-display-name="Organization").
+        [ string ]
+      .hdr(data-display-name="Path").
+        [{
+          display: string  
+          url: ::url::
+        }]
+      .hdr(data-display-name="P-Asserted-Identity").
+        {
+          display: string  
+          url: ::url::
+        }
+      .hdr(data-display-name="P-Preferred-Identity").
+        {
+          display: string  
+          url: ::url::
+        }
+      .hdr(data-display-name="Priority").
+        [ string ]
+      .hdr(data-display-name="Privacy").
+        [ string ]
+      .hdr(data-display-name="Proxy-Authenticate").
+        [{
+          scheme: string
+          params: [string]
+        }]
+      .hdr(data-display-name="Proxy-Authentication-Info").
+        [string]
+      .hdr(data-display-name="Proxy-Authorization").
+       [{
+          scheme: string
+          params: [string]
+        }]
+      .hdr(data-display-name="Proxy-Require").
+        [ string ]
+      .hdr(data-display-name="RAck").
+        {
+          method: string  
+          response: integer
+          cseq: integer
+        }
+      .hdr(data-display-name="Reason").
+        {
+          protocol: string  
+          cause: string
+          text: string
+          params: [string]
+        }
+      .hdr(data-display-name="Refer-Sub").
+        {
+          value: boolean  
+          params: [string]
+        }
+      .hdr(data-display-name="Refer-To").
+        {
+          display: string  
+          cid: string
+          url: ::url::
+          params: [string]
+        }
+      .hdr(data-display-name="Referred-By").
+        {
+          display: string  
+          cid: string
+          url: ::url::
+          params: [string]
+        }
+      .hdr(data-display-name="Remote-Party-ID").
+        [{
+          display: string  
+          screen: string
+          party: string
+          type: string
+          privacy: string
+          url: ::url::
+          params: [string]
+        }]
+      .hdr(data-display-name="Replaces").
+        {
+          call-id: string  
+          to-tag: string
+          from-tag: string
+          early-only: string
+          params: [string]
+        }
+      .hdr(data-display-name="Reply-To").
+        {
+          url: ::url::
+          params: [string]
+        }
+      .hdr(data-display-name="Request-Disposition").
+        [string]
+      .hdr(data-display-name="Retry-After").
+        {
+          delta: integer  
+          duration: string
+          comment: string
+          params: [string]
+        }
+      .hdr(data-display-name="Route").
+        [{
+          display: string  
+          url: ::url::
+        }]
+      .hdr(data-display-name="Record-Route").
+        [{
+          display: string  
+          url: ::url::
+        }]
+      .hdr(data-display-name="Require").
+        [string]
+      .hdr(data-display-name="Security-Agree").
+        {
+          mec: string  
+          q: string  
+          d_alg: string  
+          d_qop: string  
+          d_ver: string  
+          params: [string]
+        }
+      .hdr(data-display-name="Server").
+        [ string ]
+      .hdr(data-display-name="Session-Expires").
+        {
+          delta: integer  
+          refresh: string
+          params: [string]
+        }
+      .hdr(data-display-name="Service-Route").
+        [{
+          display: string  
+          url: ::url::
+        }]
+      .hdr(data-display-name="Subject").
+        [string]
+      .hdr(data-display-name="Subscription-State").
+        {
+          reason: string  
+          expires: string
+          retry-after: string
+          params: [string]
+        }
+      .hdr(data-display-name="Supported").
+        [string]
+      .hdr(data-display-name="Suppress-Body-If-Match").
+        {
+          tag: string
+        }
+      .hdr(data-display-name="Suppress-Notify-If-Match").
+        {
+          tag: string
+        }
+      .hdr(data-display-name="Timestamp").
+        {
+          ts-stamp: string
+          ts-delay: string
+        }
+      .hdr(data-display-name="To").
+        {
+          display: string
+          comment: string
+          tag: string
+          params:[string]
+          url: ::url::
+        }
+      .hdr(data-display-name="Unsupported").
+        [string]
+      .hdr(data-display-name="User-Agent").
+        [ string ]
+      .hdr(data-display-name="Via").
+        [{
+          protocol: string   //e.g 'UDP'
+          host: string
+          port: string
+          comment: string
+          ttl: string
+          maddr: string
+          received: string
+          branch: string
+          rport: string
+          comp: string
+          params: [string]
+        }]
+      .hdr(data-display-name="Warning").
+        [{
+          host: string
+          port: string
+          text: string
+          code: integer
+        }]
+      .hdr(data-display-name="WWW-Authenticate").
+        [{
+          scheme: string
+          params: [string]
+        }]

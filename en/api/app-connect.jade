@@ -1,0 +1,57 @@
+section
+  h3(id='app.connect') app.connect(opts, [callback])
+
+  p.
+    Connect to a drachtio-server.
+
+  p.
+    A drachtio application is a client application that connects to and utilizes the services
+    of a <a href='http://github.com/davehorton/drachtio-server'>drachtio-server</a> process.
+    The drachtio-server process provides the SIP endpoint that manages all of the SIP
+    signaling over the network.  The server may be running on the same machine or remotely.  
+
+  p.
+    The client calls <code>app.connect()</code> to establish a TCP connection with the server, 
+    over which JSON messages are exchanged.  The method takes an object parameter (<code>opts</code>) 
+    and an optional callback function which is invoked when the connection is established.
+
+  p.
+    The <code>opts</code> parameter is defined as follows:
+
+  +js.
+    {
+        host:   string  // IP address or DNS name of host to connect to
+        port:   integer // port on which the server is listening for client connections
+        secret: string  //shared secret used by the server to authenticate clients
+        appName: string //optional; app-provided identifier used by the server to group identical client apps
+    }
+
+  p.
+    The callback function has the signature <code>function( hostport )</code>, where <code>hostport</code>
+    is the SIP signaling address and port that the server is listening on for incoming SIP messages.
+
+  +js.
+    var app = require('drachtio')() ;
+
+    app.connect({host:'10.1.10.100',port:8022,secret:'cymru'}, function( hostport ){
+        console.log('Connected successfully to a SIP server that is listening on %s', hostport) ;
+    });
+
+  p.
+    Note that <code>app</code> is an <code>EventEmitter</code>, and an application can alternatively 
+    listen for the <code>connect</code> event, as shown below
+
+  +js.
+    var app = require('drachtio')() ;
+
+    app.connect({host:'10.1.10.100',port:8022,secret:'cymru'}) ;
+    
+    app.on('connect', function(hostport){
+        console.log('Connected successfully to SIP server listening on %s', hostport) ;
+    }) ;
+
+    //reconnect if we lose the connection
+    app.on('disconnect', function(){
+        app.connect({host:'10.1.10.100',port:8022,secret:'cymru'}) ;
+    }) ;
+ 

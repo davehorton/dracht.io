@@ -1,0 +1,17 @@
+section
+  h3(id='res.get') res.get()
+
+  p.
+    This method returns the value of a SIP header.  
+  p.
+    Note that, depending on the header requested, 
+    the value returned may be a string, an integer, a boolean, or an object describing the 
+    sub-fields of the header.  See <a href="http://dracht.io/guide.html#headers">here</a> for details.
+
+  +js.
+   app.siprequest.invite( request_uri, {
+      body: localSdp
+   }
+   , function(req, res){
+      console.log('remote tag is %s', res.get('to').tag) ;
+   }) ;

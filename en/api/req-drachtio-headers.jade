@@ -1,0 +1,14 @@
+section
+  h3(id='req.headers') req.headers
+
+  p.
+    This property is an object containing the SIP headers for this request, 
+    where the lower-cased header name form the keys of the object and
+    the values are the SIP header values.
+
+  +js.
+   app.invite( function(req, res){
+      for( var hn in req.headers ) {
+        console.log('header: %s: %s', hn, req.headers[hn]) ;
+      }
+   }) ;

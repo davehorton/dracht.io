@@ -1,0 +1,19 @@
+section
+  h3(id='res.statuscode') res.statusCode
+  
+  p.
+    This property represents the numeric value in the SIP status line.
+    It may be read or written.
+
+  +js.
+    res.statusCode = 404 ;
+    res.send() ;
+    // => SIP/2.0 404 Not Found
+
+
+    app.siprequest.options(request_uri, function(err, req, res){
+      if( res.statusCode >= 200 ) {
+        console.log('received final response with status %d', res.statusCode) ;
+        res.ack() ;
+      }
+    }) ;

@@ -1,0 +1,27 @@
+section
+  h3(id='res.ack') res.ack( [opts] )
+
+  p.
+    This method generates an ACK in response to final response to a SIP INVITE.
+ 
+  +js.
+    app.siprequest( request_uri, {
+        body: localSdp
+    }, function(err, req, res) {
+        if( err ) throw err ;
+        if( res.statusCode >= 200 ) res.ack() ;
+    }) ;
+
+  p.
+    The opts object, if provided, allows the application to set headers on the
+    ACK request, or include a body, as in the case of a deferred SDP offer.
+
+  +js.
+    //deferred SDP offer will be transmitted in the ACK
+    app.siprequest( request_uri, function( err, req, res){
+        if( res.statusCode === 200 ) {
+            res.ack({
+                body: localSdp
+            })
+        }
+    }) ;

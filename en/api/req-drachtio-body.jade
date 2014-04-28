@@ -1,0 +1,10 @@
+section
+  h3(id='req.body') req.body
+
+  p.
+    This property is an string containing the unparsed body of the SIP message.
+
+  +js.
+   app.invite( function(req, res){
+      if( console.log("INVITE contains offer %s", req.body) ;
+   }) ;

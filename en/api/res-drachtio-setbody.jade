@@ -1,0 +1,11 @@
+section
+  h3(id='res.setbody') res.setBody( string | Buffer )
+
+  p.
+    This method sets the body of a response message.
+
+  +js.
+   app.invite( function( req, res ){
+      res.setBody(localSdp) ;
+      res.send(200) ;
+   })

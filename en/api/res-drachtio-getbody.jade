@@ -1,0 +1,13 @@
+section
+  h3(id='res.getbody') res.getBody()
+
+  p.
+    This method returns string containing the unparsed body of the SIP message.
+
+  +js.
+   app.siprequest( request_uri, {
+    body: localSdp
+   }
+   , function(req, res){
+      if( res.statusCode === 200 ) console.log("response to INVITE contains body %s", res.getBody()) ;
+   }) ;

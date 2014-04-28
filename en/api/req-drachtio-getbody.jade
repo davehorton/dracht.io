@@ -1,0 +1,10 @@
+section
+  h3(id='req.getbody') req.getBody()
+
+  p.
+    This method returns string containing the unparsed body of the SIP message.
+
+  +js.
+   app.invite( function(req, res){
+      if( console.log("INVITE contains offer %s", req.getBody()) ;
+   }) ;
